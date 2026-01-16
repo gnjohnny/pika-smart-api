@@ -15,4 +15,13 @@ declare global {
     | { valid: false; reason: "expired" | "invalid" | "missing" };
 
   type RecipeDocument = HydratedDocument<RecipeType>;
+  type RecipeRequestBody = {
+    ingredients: [
+      {
+        name: string;
+        quantity: number;
+        unit: string;
+      }
+    ];
+  };
 }
