@@ -1,3 +1,9 @@
+/**
+ * Builds a text prompt (for an LLM) that instructs a professional Kenyan home chef to create a simple recipe using only the provided ingredients.
+ *
+ * @param ingredients - List of ingredient objects from the recipe request body
+ * @returns A multi-line prompt string containing the ingredient list and rules that require the response to be STRICT JSON with fields: `title`, `description`, `ingredients` (array of `{ name, quantity, unit }`), `instructions`, `prep_time`, `cook_time`, and `servings`
+ */
 export function buildRecipePromptWithIngredientsProvided(
   ingredients: RecipeRequestBody["ingredients"]
 ): string {
