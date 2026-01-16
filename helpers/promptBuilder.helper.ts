@@ -28,9 +28,9 @@ JSON format:
     { "name": "", "quantity": number, "unit": "" }
   ],
   "instructions": [],
-  prep_time: number,
-  cook_time: number,
-  servings: number
+  prep_time: 0,
+  cook_time: 0,
+  servings: 0
 }
 `;
 }

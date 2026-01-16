@@ -7,7 +7,7 @@ import { RecipeModel } from "../models/recipe.model";
 export const getAllRecipesController = async (req: Request, res: Response) => {
   try {
     const recipes = await RecipeModel.find({});
-    if (!recipes) {
+    if (recipes.length === 0) {
       return res.status(404).json({
         message: "No recipes found",
       });
@@ -28,7 +28,7 @@ export const getUserRecipesController = async (req: Request, res: Response) => {
   try {
     const user: UserDocument = req.user;
 
-    if (!user && !user._id) {
+    if (!user?._id) {
       return res.status(401).json({
         message: "Unauthorized - please log in or create an account",
       });
@@ -98,7 +98,7 @@ export const getTrashedRecipesController = async (
   try {
     const user: UserDocument = req.user;
 
-    if (!user && !user._id) {
+    if (!user?._id) {
       return res.status(401).json({
         message: "Unauthorized - please log in or create an account",
       });
@@ -129,10 +129,7 @@ export const getTrashedRecipesController = async (
 export const generateRecipeController = async (req: Request, res: Response) => {
   try {
     const { ingredients }: RecipeRequestBody = req.body;
-    if (
-      !ingredients ||
-      (Array.isArray(ingredients) && ingredients.length === null)
-    ) {
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
       return res.status(400).json({
         message: "Ingredients are required to generate a recipe",
       });
@@ -333,7 +330,7 @@ export const deleteAllTrashedRecipeController = async (
       message: "Recipe deleted successfully",
     });
   } catch (error: any) {
-    console.log("error in deleteRecipeController: ", error.message);
+    console.log("error in deleteAllTrashedRecipeController: ", error.message);
     return res.status(500).json({
       message: "Internal server error",
     });

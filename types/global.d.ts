@@ -16,12 +16,10 @@ declare global {
 
   type RecipeDocument = HydratedDocument<RecipeType>;
   type RecipeRequestBody = {
-    ingredients: [
-      {
-        name: string;
-        quantity: number;
-        unit: string;
-      }
-    ];
+    ingredients: {
+      name: string;
+      quantity: number;
+      unit: string;
+    }[];
   };
 }
