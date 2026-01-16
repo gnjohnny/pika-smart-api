@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    /* === Basic Options === */
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022"],
+    "outDir": "dist",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* === Node + Express + Prisma Compatibility === */
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node", "express"],
+
+    /* === Tell TS where to find custom global types === */
+    "typeRoots": ["./types", "./node_modules/@types"],
+
+    /* === Developer Experience === */
+    "sourceMap": true,
+    "noEmitOnError": true,
+    "noImplicitAny": false
+  },
+  "include": ["*.ts", "**/*.ts", "types/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}
