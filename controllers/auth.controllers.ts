@@ -46,9 +46,11 @@ export const signUpController = async (req: Request, res: Response) => {
 
     generateJwtToken(res, email);
 
+    const {password: _, ...userWithoutPassword} = newUser.toObject();
+
     return res
       .status(201)
-      .json({ success: true, message: "User registered successfully" });
+      .json({ success: true, message: "User registered successfully", userWithoutPassword });
   } catch (error: any) {
     console.log("error in /auth/sign-up route: ", error.message);
     return res
@@ -80,7 +82,7 @@ export const signInController = async (req: Request, res: Response) => {
     generateJwtToken(res, email);
     return res
       .status(200)
-      .json({ success: true, message: "User signed in successfully" });
+      .json({ success: true, message: "User signed in successfully", user });
   } catch (error: any) {
     console.log("error in /auth/sign-in route: ", error.message);
     return res
