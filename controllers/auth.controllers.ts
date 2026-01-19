@@ -69,7 +69,7 @@ export const signInController = async (req: Request, res: Response) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, message: "User not found - try again with a different email or create an account" });
     }
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {

@@ -1,6 +1,8 @@
 import express, { Application } from "express";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+
 import { connectDB } from "./db/db";
 import authRoutes from "./routes/auth.routes";
 import recipeRoutes from "./routes/recipe.routes";
@@ -11,6 +13,10 @@ const PORT = process.env.PORT;
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 app.use(cookieParser());
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+}))
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/recipe", recipeRoutes);
