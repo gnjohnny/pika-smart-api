@@ -46,11 +46,13 @@ export const signUpController = async (req: Request, res: Response) => {
 
     generateJwtToken(res, email);
 
-    const {password: _, ...userWithoutPassword} = newUser.toObject();
+    const { password: _, ...userWithoutPassword } = newUser.toObject();
 
-    return res
-      .status(201)
-      .json({ success: true, message: "User registered successfully", userWithoutPassword });
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      userWithoutPassword,
+    });
   } catch (error: any) {
     console.log("error in /auth/sign-up route: ", error.message);
     return res
@@ -69,9 +71,11 @@ export const signInController = async (req: Request, res: Response) => {
     }
     const user: UserDocument = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found - try again with a different email or create an account" });
+      return res.status(404).json({
+        success: false,
+        message:
+          "User not found - try again with a different email or create an account",
+      });
     }
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -107,7 +111,7 @@ export const signOutController = async (req: Request, res: Response) => {
 
 export const requestPasswordResetLinkController = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { email } = req.body;
@@ -121,7 +125,7 @@ export const requestPasswordResetLinkController = async (
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, message: "Email not found" });
     }
 
     const passwordResetToken = generatePasswordResetToken(email);
@@ -136,7 +140,7 @@ export const requestPasswordResetLinkController = async (
   } catch (error: any) {
     console.log(
       "error in /auth/request-password-reset-link route: ",
-      error.message
+      error.message,
     );
     return res
       .status(500)
