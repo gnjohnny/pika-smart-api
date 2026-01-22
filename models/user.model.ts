@@ -2,37 +2,42 @@ import { Schema, model, type InferSchemaType } from "mongoose";
 import bcrypt from "bcryptjs";
 import { HydratedDocument } from "mongoose";
 
-const userSchema = new Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    sparse: true,
-    trim: true,
+const userSchema = new Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    saved_recipes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Recipe",
+      },
+    ],
+    trashed_recipes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Recipe",
+      },
+    ],
+    favourite_recipes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Recipe",
+      },
+    ],
   },
-  password: {
-    type: String,
-    required: true,
+  {
+    timestamps: true,
   },
-  saved_recipes: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Recipe",
-    },
-  ],
-  trashed_recipes: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Recipe",
-    },
-  ],
-  favourite_recipes: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Recipe",
-    },
-  ],
-});
+);
 
 userSchema.pre("save", async function () {
   try {
@@ -48,7 +53,7 @@ userSchema.pre("save", async function () {
 });
 
 userSchema.methods.comparePassword = async function (
-  candidatePassword: string
+  candidatePassword: string,
 ) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
