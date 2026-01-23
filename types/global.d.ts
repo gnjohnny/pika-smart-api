@@ -18,8 +18,6 @@ declare global {
   type RecipeRequestBody = {
     ingredients: Array<{
       name: string;
-      quantity: number;
-      unit: string;
     }>;
   };
 }

@@ -35,7 +35,7 @@ export const getUserRecipesController = async (req: Request, res: Response) => {
     }
 
     const checkUser: UserDocument = await User.findById(user._id).populate(
-      "saved_recipes"
+      "saved_recipes",
     );
 
     if (!checkUser) {
@@ -58,7 +58,7 @@ export const getUserRecipesController = async (req: Request, res: Response) => {
 
 export const getFavouriteRecipesController = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const user: UserDocument = req.user;
@@ -70,7 +70,7 @@ export const getFavouriteRecipesController = async (
     }
 
     const checkUser: UserDocument = await User.findById(user._id).populate(
-      "favourite_recipes"
+      "favourite_recipes",
     );
 
     if (!checkUser) {
@@ -93,7 +93,7 @@ export const getFavouriteRecipesController = async (
 
 export const getTrashedRecipesController = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const user: UserDocument = req.user;
@@ -105,7 +105,7 @@ export const getTrashedRecipesController = async (
     }
 
     const checkUser: UserDocument = await User.findById(user._id).populate(
-      "trashed_recipes"
+      "trashed_recipes",
     );
 
     if (!checkUser) {
@@ -129,9 +129,7 @@ export const getTrashedRecipesController = async (
 export const generateRecipeController = async (req: Request, res: Response) => {
   try {
     const { ingredients }: RecipeRequestBody = req.body;
-    if (
-      !Array.isArray(ingredients) || ingredients.length === 0
-    ) {
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
       return res.status(400).json({
         message: "Ingredients are required to generate a recipe",
       });
@@ -154,6 +152,13 @@ export const generateRecipeController = async (req: Request, res: Response) => {
     if (!recipe) {
       return res.status(500).json({
         message: "Failed to parse generated recipe",
+      });
+    }
+
+    if (recipe.reason) {
+      return res.status(200).json({
+        message: "Failed to generate a recipe",
+        reason: recipe.reason,
       });
     }
 
@@ -216,7 +221,7 @@ export const saveRecipeController = async (req: Request, res: Response) => {
 
 export const favouriteRecipeController = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { id } = req.params;
@@ -261,7 +266,7 @@ export const favouriteRecipeController = async (
 
 export const moveRecipeToTrashController = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { id } = req.params;
@@ -306,7 +311,7 @@ export const moveRecipeToTrashController = async (
 
 export const deleteAllTrashedRecipeController = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const user: UserDocument = req.user;

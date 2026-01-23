@@ -5,7 +5,6 @@ export const ingredientSchema = new Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
     quantity: {
@@ -15,17 +14,7 @@ export const ingredientSchema = new Schema(
     unit: {
       type: String,
       required: true,
-      enum: [
-        "grams",
-        "ml",
-        "cups",
-        "tablespoons",
-        "teaspoons",
-        "pieces",
-        "kg",
-        "liters",
-      ],
     },
   },
-  { _id: false }
+  { _id: false },
 );

@@ -1,9 +1,9 @@
 export function buildRecipePromptWithIngredientsProvided(
-  ingredients: RecipeRequestBody["ingredients"]
+  ingredients: RecipeRequestBody["ingredients"],
 ): string {
   const ingredientList = ingredients
     .map((ing) => {
-      return `- ${ing.quantity} ${ing.unit} of ${ing.name}`;
+      return `- ${ing}`;
     })
     .join("\n");
   return `
@@ -13,6 +13,8 @@ Create a SIMPLE Kenyan-friendly recipe using ONLY the ingredients listed below.
 
 Ingredients available:
 ${ingredientList}
+
+Then even if the essentials for cooking such as cooking oil salt etc are not provided just add them to the list of ingredients you are provided with.
 
 Rules:
 - Prefer common Kenyan meals and cooking styles
@@ -31,6 +33,11 @@ JSON format:
   prep_time: number,
   cook_time: number,
   servings: number
+}
+
+If the ingredients provided you're unable to use to generate a recipe instead of using the json format above use this instead:
+{
+    "reason": ' ',
 }
 `;
 }
