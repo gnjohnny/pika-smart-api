@@ -21,6 +21,7 @@ Rules:
 - No exotic ingredients
 - Use simple cooking steps
 - Output STRICT JSON ONLY (no markdown, no explanations)
+- Remember to include everything in the json to prevent errors in my database
 
 JSON format:
 {

@@ -157,7 +157,7 @@ export const generateRecipeController = async (req: Request, res: Response) => {
 
     if (recipe.reason) {
       return res.status(200).json({
-        message: "Failed to generate a recipe",
+        message: "Failed to generate a recipe - invalid ingredients",
         reason: recipe.reason,
       });
     }
@@ -166,8 +166,9 @@ export const generateRecipeController = async (req: Request, res: Response) => {
     await newRecipe.save();
 
     return res.status(200).json({
+      success: true,
       message: "Recipe generated successfully",
-      recipe,
+      newRecipe,
     });
   } catch (error: any) {
     console.log("error in generateRecipeController: ", error.message);
