@@ -4,7 +4,7 @@ export const generateRecipeFromIngredients = async (prompt: string) => {
   try {
     const result = await model.generateContent(prompt);
     return result.response;
-  } catch (error) {
-    console.error("Error generating recipe:", error);
+  } catch (error: any) {
+    console.error("Error generating recipe:", error.message);
   }
 };
