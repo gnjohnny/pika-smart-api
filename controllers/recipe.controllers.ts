@@ -34,9 +34,10 @@ export const getUserRecipesController = async (req: Request, res: Response) => {
       });
     }
 
-    const checkUser: UserDocument = await User.findById(user._id).populate(
-      "saved_recipes",
-    );
+    const checkUser: UserDocument = await User.findById(user._id).populate({
+      path: "saved_recipes",
+      match: { trashed: { $ne: true } },
+    });
 
     if (!checkUser) {
       return res.status(404).json({
@@ -69,9 +70,10 @@ export const getFavouriteRecipesController = async (
       });
     }
 
-    const checkUser: UserDocument = await User.findById(user._id).populate(
-      "favourite_recipes",
-    );
+    const checkUser: UserDocument = await User.findById(user._id).populate({
+      path: "favourite_recipes",
+      match: { favourited: { $ne: false } },
+    });
 
     if (!checkUser) {
       return res.status(404).json({
@@ -104,9 +106,10 @@ export const getTrashedRecipesController = async (
       });
     }
 
-    const checkUser: UserDocument = await User.findById(user._id).populate(
-      "trashed_recipes",
-    );
+    const checkUser: UserDocument = await User.findById(user._id).populate({
+      path: "trashed_recipes",
+      match: { trashed: { $ne: false } },
+    });
 
     if (!checkUser) {
       return res.status(404).json({
@@ -254,6 +257,9 @@ export const favouriteRecipeController = async (
       $addToSet: { favourite_recipes: recipe._id },
     });
 
+    recipe.favourited = true;
+    recipe.save();
+
     return res.status(200).json({
       message: "Recipe favourited successfully",
     });
@@ -298,6 +304,9 @@ export const moveRecipeToTrashController = async (
     await User.findByIdAndUpdate(user._id, {
       $addToSet: { trashed_recipes: recipe._id },
     });
+
+    recipe.trashed = true;
+    recipe.save();
 
     return res.status(200).json({
       message: "Recipe moved to trash successfully",

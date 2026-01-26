@@ -36,6 +36,14 @@ const recipeSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    favourited: {
+      type: Boolean,
+      default: false,
+    },
+    trashed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
