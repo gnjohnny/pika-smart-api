@@ -5,6 +5,9 @@ import { buildRecipePromptWithIngredientsProvided } from "../helpers/promptBuild
 import { generateRecipeFromIngredients } from "../helpers/generateRecipe.helper";
 import { RecipeModel } from "../models/recipe.model";
 
+const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const getAllRecipesController = async (req: Request, res: Response) => {
   try {
     const { title, sortby } = req.query;
@@ -13,7 +16,7 @@ export const getAllRecipesController = async (req: Request, res: Response) => {
 
     const filter =
       typeof title === "string"
-        ? { title: { $regex: title, $options: "i" } }
+        ? { title: { $regex: escapeRegex(title), $options: "i" } }
         : {};
 
     const sortOption: Record<string, SortOrder> = {};
@@ -63,13 +66,18 @@ export const getUserRecipesController = async (req: Request, res: Response) => {
     const recipeFilter: any = {};
 
     if (typeof title === "string") {
-      recipeFilter.title = { $regex: title, $options: "i" };
+      recipeFilter.title = { $regex: escapeRegex(title), $options: "i" };
     }
 
     const sortOption: Record<string, SortOrder> = {};
     if (sortby === "newest") sortOption.createdAt = -1;
     if (sortby === "oldest") sortOption.createdAt = 1;
     if (sortby === "title") sortOption.title = 1;
+
+    const userDoc = await User.findById(user._id).select("saved_recipes");
+    if (!userDoc) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const checkUser = await User.findById(user._id).populate({
       path: "saved_recipes",
@@ -81,12 +89,8 @@ export const getUserRecipesController = async (req: Request, res: Response) => {
       },
     });
 
-    if (!checkUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
     const totalRecipes = await RecipeModel.countDocuments({
-      _id: { $in: checkUser.saved_recipes },
+      _id: { $in: userDoc.saved_recipes },
       ...recipeFilter,
     });
 
@@ -94,7 +98,7 @@ export const getUserRecipesController = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       message: "User recipes fetched successfully",
-      saved_recipes: checkUser.saved_recipes,
+      saved_recipes: checkUser?.saved_recipes,
       totalRecipes,
       totalPages,
       currentPage: pageNum,
@@ -127,13 +131,18 @@ export const getFavouriteRecipesController = async (
     const recipeFilter: any = {};
 
     if (typeof title === "string") {
-      recipeFilter.title = { $regex: title, $options: "i" };
+      recipeFilter.title = { $regex: escapeRegex(title), $options: "i" };
     }
 
     const sortOption: Record<string, SortOrder> = {};
     if (sortby === "newest") sortOption.createdAt = -1;
     if (sortby === "oldest") sortOption.createdAt = 1;
     if (sortby === "title") sortOption.title = 1;
+
+    const userDoc = await User.findById(user._id).select("saved_recipes");
+    if (!userDoc) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const checkUser: UserDocument = await User.findById(user._id).populate({
       path: "favourite_recipes",
@@ -146,20 +155,14 @@ export const getFavouriteRecipesController = async (
     });
 
     const totalRecipes = await RecipeModel.countDocuments({
-      _id: { $in: checkUser?.favourite_recipes },
+      _id: { $in: userDoc.favourite_recipes },
       ...recipeFilter,
     });
     const totalPages = Math.max(Math.ceil(totalRecipes / limitNum), 1);
 
-    if (!checkUser) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
     return res.status(200).json({
       message: "Favourite recipes fetched successfully",
-      favourite_recipes: checkUser.favourite_recipes,
+      favourite_recipes: checkUser?.favourite_recipes,
       totalRecipes,
       totalPages,
       currentPage: pageNum,
@@ -189,12 +192,12 @@ export const getTrashedRecipesController = async (
 
     const pageNum = Math.max(Number(page), 1);
     const limitNum = Math.max(Number(limit), 1);
-    const skip = Math.ceil((pageNum - 1) * limitNum);
+    const skip = (pageNum - 1) * limitNum;
 
     const recipeFilter: any = {};
 
     if (typeof title === "string") {
-      recipeFilter.title = { $regex: title, $options: "i" };
+      recipeFilter.title = { $regex: escapeRegex(title), $options: "i" };
     }
 
     let sortOption: Record<string, SortOrder> = {};
@@ -203,6 +206,11 @@ export const getTrashedRecipesController = async (
     if (sortby === "oldest") sortOption.createdAt = 1;
     if (sortby === "title") sortOption.title = 1;
 
+    const userDoc = await User.findById(user._id).select("trashed_recipes");
+    if (!userDoc) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const checkUser: UserDocument = await User.findById(user._id).populate({
       path: "trashed_recipes",
       match: recipeFilter,
@@ -210,21 +218,15 @@ export const getTrashedRecipesController = async (
     });
 
     const totalRecipes = await RecipeModel.countDocuments({
-      _id: { $in: checkUser?.trashed_recipes },
+      _id: { $in: userDoc.trashed_recipes },
       ...recipeFilter,
     });
 
     const totalPages = Math.max(Math.ceil(totalRecipes / limitNum), 1);
 
-    if (!checkUser) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
     return res.status(200).json({
       message: "Trashed recipes fetched successfully",
-      trashed_recipes: checkUser.trashed_recipes,
+      trashed_recipes: checkUser?.trashed_recipes,
       totalRecipes,
       totalPages,
       currentPage: pageNum,
