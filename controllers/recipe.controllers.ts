@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { SortOrder } from "mongoose";
 import { User } from "../models/user.model";
 import { buildRecipePromptWithIngredientsProvided } from "../helpers/promptBuilder.helper";
 import { generateRecipeFromIngredients } from "../helpers/generateRecipe.helper";
@@ -6,21 +7,40 @@ import { RecipeModel } from "../models/recipe.model";
 
 export const getAllRecipesController = async (req: Request, res: Response) => {
   try {
-    const recipes = await RecipeModel.find({});
-    if (recipes.length === 0) {
-      return res.status(404).json({
-        message: "No recipes found",
-      });
-    }
+    const { title, sortby } = req.query;
+    const pageNum = Math.max(Number(req.query.page) || 1, 1);
+    const limitNum = Math.max(Number(req.query.limit) || 10, 1);
+
+    const filter =
+      typeof title === "string"
+        ? { title: { $regex: title, $options: "i" } }
+        : {};
+
+    const sortOption: Record<string, SortOrder> = {};
+    if (sortby === "newest") sortOption.createdAt = -1;
+    if (sortby === "oldest") sortOption.createdAt = 1;
+    if (sortby === "title") sortOption.title = 1;
+
+    const skip = (pageNum - 1) * limitNum;
+
+    const recipes = await RecipeModel.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limitNum);
+
+    const totalRecipes = await RecipeModel.countDocuments(filter);
+    const totalPages = Math.max(Math.ceil(totalRecipes / limitNum), 1);
+
     return res.status(200).json({
       message: "All recipes fetched successfully",
       recipes,
+      totalRecipes,
+      totalPages,
+      currentPage: pageNum,
     });
   } catch (error: any) {
-    console.log("error in getAllRecipesController: ", error.message);
-    return res.status(500).json({
-      message: "Internal server error",
-    });
+    console.log("error in getAllRecipesController:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -34,26 +54,54 @@ export const getUserRecipesController = async (req: Request, res: Response) => {
       });
     }
 
-    const checkUser: UserDocument = await User.findById(user._id).populate({
+    const { title, sortby, page = 1, limit = 10 } = req.query;
+
+    const pageNum = Math.max(Number(page), 1);
+    const limitNum = Math.max(Number(limit), 1);
+    const skip = (pageNum - 1) * limitNum;
+
+    const recipeFilter: any = {};
+
+    if (typeof title === "string") {
+      recipeFilter.title = { $regex: title, $options: "i" };
+    }
+
+    const sortOption: Record<string, SortOrder> = {};
+    if (sortby === "newest") sortOption.createdAt = -1;
+    if (sortby === "oldest") sortOption.createdAt = 1;
+    if (sortby === "title") sortOption.title = 1;
+
+    const checkUser = await User.findById(user._id).populate({
       path: "saved_recipes",
-      match: { trashed: { $ne: true } },
+      match: recipeFilter,
+      options: {
+        sort: sortOption,
+        skip,
+        limit: limitNum,
+      },
     });
 
     if (!checkUser) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      return res.status(404).json({ message: "User not found" });
     }
+
+    const totalRecipes = await RecipeModel.countDocuments({
+      _id: { $in: checkUser.saved_recipes },
+      ...recipeFilter,
+    });
+
+    const totalPages = Math.max(Math.ceil(totalRecipes / limitNum), 1);
 
     return res.status(200).json({
       message: "User recipes fetched successfully",
       saved_recipes: checkUser.saved_recipes,
+      totalRecipes,
+      totalPages,
+      currentPage: pageNum,
     });
   } catch (error: any) {
-    console.log("error in getUserRecipesController: ", error.message);
-    return res.status(500).json({
-      message: "Internal server error",
-    });
+    console.log("error in getUserRecipesController:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -70,10 +118,38 @@ export const getFavouriteRecipesController = async (
       });
     }
 
+    const { title, sortby, page = 1, limit = 10 } = req.query;
+
+    const pageNum = Math.max(Number(page), 1);
+    const limitNum = Math.max(Number(limit), 1);
+    const skip = (pageNum - 1) * limitNum;
+
+    const recipeFilter: any = {};
+
+    if (typeof title === "string") {
+      recipeFilter.title = { $regex: title, $options: "i" };
+    }
+
+    const sortOption: Record<string, SortOrder> = {};
+    if (sortby === "newest") sortOption.createdAt = -1;
+    if (sortby === "oldest") sortOption.createdAt = 1;
+    if (sortby === "title") sortOption.title = 1;
+
     const checkUser: UserDocument = await User.findById(user._id).populate({
       path: "favourite_recipes",
-      match: { favourited: { $ne: false } },
+      match: recipeFilter,
+      options: {
+        sort: sortOption,
+        skip,
+        limit: limitNum,
+      },
     });
+
+    const totalRecipes = await RecipeModel.countDocuments({
+      _id: { $in: checkUser?.favourite_recipes },
+      ...recipeFilter,
+    });
+    const totalPages = Math.max(Math.ceil(totalRecipes / limitNum), 1);
 
     if (!checkUser) {
       return res.status(404).json({
@@ -84,6 +160,9 @@ export const getFavouriteRecipesController = async (
     return res.status(200).json({
       message: "Favourite recipes fetched successfully",
       favourite_recipes: checkUser.favourite_recipes,
+      totalRecipes,
+      totalPages,
+      currentPage: pageNum,
     });
   } catch (error: any) {
     console.log("error in getFavouriteRecipesController: ", error.message);
@@ -106,10 +185,36 @@ export const getTrashedRecipesController = async (
       });
     }
 
+    const { title, sortby, page = 1, limit = 10 } = req.query;
+
+    const pageNum = Math.max(Number(page), 1);
+    const limitNum = Math.max(Number(limit), 1);
+    const skip = Math.ceil((pageNum - 1) * limitNum);
+
+    const recipeFilter: any = {};
+
+    if (typeof title === "string") {
+      recipeFilter.title = { $regex: title, $options: "i" };
+    }
+
+    let sortOption: Record<string, SortOrder> = {};
+
+    if (sortby === "newest") sortOption.createdAt = -1;
+    if (sortby === "oldest") sortOption.createdAt = 1;
+    if (sortby === "title") sortOption.title = 1;
+
     const checkUser: UserDocument = await User.findById(user._id).populate({
       path: "trashed_recipes",
-      match: { trashed: { $ne: false } },
+      match: recipeFilter,
+      options: { sort: sortOption, skip, limit: limitNum },
     });
+
+    const totalRecipes = await RecipeModel.countDocuments({
+      _id: { $in: checkUser?.trashed_recipes },
+      ...recipeFilter,
+    });
+
+    const totalPages = Math.max(Math.ceil(totalRecipes / limitNum), 1);
 
     if (!checkUser) {
       return res.status(404).json({
@@ -120,6 +225,9 @@ export const getTrashedRecipesController = async (
     return res.status(200).json({
       message: "Trashed recipes fetched successfully",
       trashed_recipes: checkUser.trashed_recipes,
+      totalRecipes,
+      totalPages,
+      currentPage: pageNum,
     });
   } catch (error: any) {
     console.log("error in getTrashedRecipesController: ", error.message);
@@ -257,9 +365,6 @@ export const favouriteRecipeController = async (
       $addToSet: { favourite_recipes: recipe._id },
     });
 
-    recipe.favourited = true;
-    recipe.save();
-
     return res.status(200).json({
       message: "Recipe favourited successfully",
     });
@@ -304,9 +409,6 @@ export const moveRecipeToTrashController = async (
     await User.findByIdAndUpdate(user._id, {
       $addToSet: { trashed_recipes: recipe._id },
     });
-
-    recipe.trashed = true;
-    recipe.save();
 
     return res.status(200).json({
       message: "Recipe moved to trash successfully",
