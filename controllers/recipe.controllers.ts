@@ -139,7 +139,7 @@ export const getFavouriteRecipesController = async (
     if (sortby === "oldest") sortOption.createdAt = 1;
     if (sortby === "title") sortOption.title = 1;
 
-    const userDoc = await User.findById(user._id).select("saved_recipes");
+    const userDoc = await User.findById(user._id).select("favourite_recipes");
     if (!userDoc) {
       return res.status(404).json({ message: "User not found" });
     }
