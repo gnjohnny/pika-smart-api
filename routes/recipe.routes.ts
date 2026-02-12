@@ -10,12 +10,17 @@ import {
   getUserRecipesController,
   moveRecipeToTrashController,
   saveRecipeController,
+  getFullRecipeInfo,
 } from "../controllers/recipe.controllers";
 
 const router = Router();
 
 //this route helps to get all recipes
 router.get("/all", getAllRecipesController);
+
+//this route helps to retrieve full info about a specific recipe
+
+router.get("/recipe-info/:id", getFullRecipeInfo);
 
 //this route helps to get all recipes for a user from database
 router.get("/my-recipes", checkAuthMiddleware, getUserRecipesController);
@@ -24,14 +29,14 @@ router.get("/my-recipes", checkAuthMiddleware, getUserRecipesController);
 router.get(
   "/favourite-recipes",
   checkAuthMiddleware,
-  getFavouriteRecipesController
+  getFavouriteRecipesController,
 );
 
 //this route helps to get trashed recipes for a user from database
 router.get(
   "/trashed-recipes",
   checkAuthMiddleware,
-  getTrashedRecipesController
+  getTrashedRecipesController,
 );
 
 //this routes will help generate a recipe
@@ -47,7 +52,7 @@ router.patch("/favourite/:id", checkAuthMiddleware, favouriteRecipeController);
 router.patch(
   "/move-to-trash/:id",
   checkAuthMiddleware,
-  moveRecipeToTrashController
+  moveRecipeToTrashController,
 );
 
 //this route will help to delete recipe

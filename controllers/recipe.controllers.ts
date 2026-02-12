@@ -47,6 +47,23 @@ export const getAllRecipesController = async (req: Request, res: Response) => {
   }
 };
 
+export const getFullRecipeInfo = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const recipe = await RecipeModel.findById(id);
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+    return res.status(200).json({
+      message: "Recipe info fetched successfully",
+      recipe,
+    });
+  } catch (error: any) {
+    console.log("Error in getFullRecipeInfo: ", error.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const getUserRecipesController = async (req: Request, res: Response) => {
   try {
     const user: UserDocument = req.user;
