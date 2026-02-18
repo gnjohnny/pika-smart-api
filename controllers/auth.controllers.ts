@@ -231,6 +231,15 @@ export const updateEmailController = async (req: Request, res: Response) => {
         .json({ success: false, message: "Invalid email format" });
     }
 
+    if (newEmail === foundUser.email) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "New email cannot be the same as the current email",
+        });
+    }
+
     const existingUser = await User.findOne({ email: newEmail });
     if (existingUser) {
       return res.status(409).json({
@@ -240,8 +249,8 @@ export const updateEmailController = async (req: Request, res: Response) => {
     }
 
     foundUser.email = newEmail;
-    generateJwtToken(res, newEmail);
     await foundUser.save();
+    generateJwtToken(res, newEmail);
 
     return res
       .status(200)
