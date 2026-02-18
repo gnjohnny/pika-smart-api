@@ -6,6 +6,8 @@ import {
   signInController,
   signOutController,
   signUpController,
+  updateEmailController,
+  updatePasswordController,
 } from "../controllers/auth.controllers";
 import { checkAuthMiddleware } from "../middleware/checkAuth.middleware";
 import { User } from "../models/user.model";
@@ -37,5 +39,9 @@ router.post("/sign-out", signOutController);
 //forgot password routes
 router.post("/request-password-reset-link", requestPasswordResetLinkController);
 router.patch("/reset-password/:token", resetPasswordController);
+
+//update email and password routes
+router.patch("/update-email", checkAuthMiddleware, updateEmailController);
+router.patch("/update-password", checkAuthMiddleware, updatePasswordController);
 
 export default router;
