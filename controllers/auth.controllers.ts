@@ -203,3 +203,94 @@ export const resetPasswordController = async (req: Request, res: Response) => {
       .json({ success: false, message: "Internal server error" });
   }
 };
+
+export const updateEmailController = async (req: Request, res: Response) => {
+  try {
+    const { newEmail } = req.body;
+
+    if (!newEmail) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email is required" });
+    }
+
+    const user = req.user;
+
+    const foundUser = await User.findOne({ email: user?.email });
+
+    if (!foundUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User with the email is not found" });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email format" });
+    }
+
+    const existingUser = await User.findOne({ email: newEmail });
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "Email is already in use - Try again with a different email.",
+      });
+    }
+
+    foundUser.email = newEmail;
+    generateJwtToken(res, newEmail);
+    await foundUser.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Email updated successfully" });
+  } catch (error: any) {
+    console.log("Error in update email controller: ", error.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const updatePasswordController = async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password and new password are required",
+      });
+    }
+    const user = req.user;
+    const foundUser: UserDocument = await User.findOne({ email: user?.email });
+    if (!foundUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User with the email is not found" });
+    }
+    const isMatch = await foundUser.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Current password is incorrect" });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long",
+      });
+    }
+    foundUser.password = newPassword;
+    await foundUser.save();
+    return res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
+  } catch (error: any) {
+    console.log("Error in update password controller: ", error.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
