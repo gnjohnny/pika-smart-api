@@ -427,6 +427,10 @@ export const moveRecipeToTrashController = async (
 
     await User.findByIdAndUpdate(user._id, {
       $addToSet: { trashed_recipes: recipe._id },
+      $pull: {
+        saved_recipes: recipe._id,
+        favourite_recipes: recipe._id,
+      },
     });
 
     return res.status(200).json({
@@ -470,6 +474,57 @@ export const deleteAllTrashedRecipeController = async (
   } catch (error: any) {
     console.log("error in deleteAllTrashedRecipeController: ", error.message);
     return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export const restoreRecipeFromTrash = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user: UserDocument = req.user;
+
+    if (!user?._id) {
+      return res.status(401).json({
+        message: "Unauthorized - please log in or create an account",
+      });
+    }
+
+    const checkUser: UserDocument = await User.findById(user._id);
+
+    if (!checkUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const recipe = await RecipeModel.findById(id);
+
+    if (!recipe) {
+      return res.status(404).json({
+        success: false,
+        message: "Recipe not found",
+      });
+    }
+
+    await User.findByIdAndUpdate(checkUser._id, {
+      $addToSet: {
+        saved_recipes: recipe._id,
+      },
+      $pull: {
+        trashed_recipes: recipe._id,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Recipe restored successfully",
+    });
+  } catch (error: any) {
+    console.log("Error in restoreRecipeFromTrash controller: ", error.message);
+    res.status(500).json({
+      success: false,
       message: "Internal server error",
     });
   }
