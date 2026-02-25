@@ -11,6 +11,7 @@ import {
   moveRecipeToTrashController,
   saveRecipeController,
   getFullRecipeInfo,
+  restoreRecipeFromTrash,
 } from "../controllers/recipe.controllers";
 
 const router = Router();
@@ -54,6 +55,9 @@ router.patch(
   checkAuthMiddleware,
   moveRecipeToTrashController,
 );
+
+//this route will help to restore a recipe
+router.patch("/restore/:id", checkAuthMiddleware, restoreRecipeFromTrash);
 
 //this route will help to delete recipe
 router.delete("/delete", checkAuthMiddleware, deleteAllTrashedRecipeController);
