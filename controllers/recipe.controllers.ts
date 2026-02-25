@@ -508,14 +508,24 @@ export const restoreRecipeFromTrash = async (req: Request, res: Response) => {
       });
     }
 
-    await User.findByIdAndUpdate(checkUser._id, {
-      $addToSet: {
-        saved_recipes: recipe._id,
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: checkUser._id, trashed_recipes: recipe._id },
+      {
+        $addToSet: {
+          saved_recipes: recipe._id,
+        },
+        $pull: {
+          trashed_recipes: recipe._id,
+        },
       },
-      $pull: {
-        trashed_recipes: recipe._id,
-      },
-    });
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Recipe not found in trash",
+      });
+    }
 
     return res.status(200).json({
       success: true,
