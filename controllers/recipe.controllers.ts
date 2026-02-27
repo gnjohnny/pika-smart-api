@@ -539,3 +539,55 @@ export const restoreRecipeFromTrash = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const unFavouriteRecipe = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user: UserDocument = req.user;
+
+    if (!user?._id) {
+      return res.status(401).json({
+        message: "Unauthorized - please log in or create an account",
+      });
+    }
+
+    const checkUser: UserDocument = await User.findById(user._id);
+
+    if (!checkUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const recipe = await RecipeModel.findById(id);
+
+    if (!recipe) {
+      return res.status(404).json({
+        message: "Recipe not found",
+      });
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: checkUser._id, favourited_recipes: recipe._id },
+      {
+        $pull: { favourite_recipes: recipe._id },
+      },
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "Recipe not found in favourites",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Recipe removed from favourites successfully",
+    });
+  } catch (error: any) {
+    console.log("Error in unfavourite recipe controller: ", error.message);
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error",
+    });
+  }
+};

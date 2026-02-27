@@ -12,6 +12,7 @@ import {
   saveRecipeController,
   getFullRecipeInfo,
   restoreRecipeFromTrash,
+  unFavouriteRecipe,
 } from "../controllers/recipe.controllers";
 
 const router = Router();
@@ -48,6 +49,9 @@ router.patch("/save/:id", checkAuthMiddleware, saveRecipeController);
 
 //this route will help to favourite a recipe
 router.patch("/favourite/:id", checkAuthMiddleware, favouriteRecipeController);
+
+//this route will help to unfavourite a recipe
+router.patch("/unfavourite/:id", checkAuthMiddleware, unFavouriteRecipe);
 
 //this route will hwlp trash a recipe for later deletion
 router.patch(
