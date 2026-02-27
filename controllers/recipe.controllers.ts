@@ -467,6 +467,12 @@ export const deleteAllTrashedRecipeController = async (
 
     const recipeIds = checkUser.trashed_recipes;
 
+    if (!recipeIds) {
+      return res.status(404).json({
+        message: "No trashed recipes found",
+      });
+    }
+
     await Promise.all(
       recipeIds.map((recipeId) => RecipeModel.findByIdAndDelete(recipeId)),
     );
