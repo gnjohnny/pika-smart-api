@@ -568,7 +568,7 @@ export const unFavouriteRecipe = async (req: Request, res: Response) => {
     }
 
     const updatedUser = await User.findOneAndUpdate(
-      { _id: checkUser._id, favourited_recipes: recipe._id },
+      { _id: checkUser._id, favourite_recipes: recipe._id },
       {
         $pull: { favourite_recipes: recipe._id },
       },
@@ -576,17 +576,19 @@ export const unFavouriteRecipe = async (req: Request, res: Response) => {
 
     if (!updatedUser) {
       return res.status(404).json({
+        success: false,
         message: "Recipe not found in favourites",
       });
     }
 
     return res.status(200).json({
+      success: true,
       message: "Recipe removed from favourites successfully",
     });
   } catch (error: any) {
     console.log("Error in unfavourite recipe controller: ", error.message);
     return res.status(500).json({
-      status: false,
+      success: false,
       message: "Internal server error",
     });
   }
