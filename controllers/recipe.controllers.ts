@@ -465,7 +465,15 @@ export const deleteAllTrashedRecipeController = async (
       });
     }
 
-    checkUser.trashed_recipes.length = 0;
+    checkUser.trashed_recipes.forEach(async (recipeId) => {
+      await RecipeModel.findByIdAndDelete(recipeId, {
+        $pull: {
+          saved_recipes: recipeId,
+          favourite_recipes: recipeId,
+        },
+      });
+    });
+    checkUser.trashed_recipes = [];
     await checkUser.save();
 
     return res.status(200).json({
