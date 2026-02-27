@@ -465,16 +465,22 @@ export const deleteAllTrashedRecipeController = async (
       });
     }
 
-    checkUser.trashed_recipes.forEach(async (recipeId) => {
-      await RecipeModel.findByIdAndDelete(recipeId, {
+    const recipeIds = checkUser.trashed_recipes;
+
+    await Promise.all(
+      recipeIds.map((recipeId) => RecipeModel.findByIdAndDelete(recipeId)),
+    );
+
+    await User.updateMany(
+      {},
+      {
         $pull: {
-          saved_recipes: recipeId,
-          favourite_recipes: recipeId,
+          saved_recipes: { $in: recipeIds },
+          favourite_recipes: { $in: recipeIds },
+          trashed_recipes: { $in: recipeIds },
         },
-      });
-    });
-    checkUser.trashed_recipes = [];
-    await checkUser.save();
+      },
+    );
 
     return res.status(200).json({
       message: "Recipe deleted successfully",
