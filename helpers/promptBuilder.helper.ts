@@ -22,6 +22,9 @@ Rules:
 - Use simple cooking steps
 - Output STRICT JSON ONLY (no markdown, no explanations)
 - Remember to include everything in the json to prevent errors in my database
+- Provide a recipe that can be cooked with the ingredients provided, if you are unable to generate a recipe with the ingredients provided then provide a reason why you are unable to generate a recipe with the ingredients provided and do not provide a recipe if you are unable to generate a recipe with the ingredients provided.
+- Also please include everything in the json to prevent errors in my database such as prep_time, cook_time, servings, description, units etc. if you are unable to provide any of these details just put 0 for the numbers and an empty string for the text.
+- Please remember the json you're providing am saving it to the database so if one field is missing am getting storage errors in my database so please make sure to include everything in the json to prevent errors in my database.
 
 JSON format:
 {

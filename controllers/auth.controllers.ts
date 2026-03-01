@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { User } from "../models/user.model";
-import { generateJwtToken } from "../utils/generateJwtToken.util";
-import { generatePasswordResetToken } from "../helpers/generate_password_reset_token";
-import { validateToken } from "../helpers/checkPasswordLinkValidity";
+import { User } from "../models/user.model.js";
+import { generateJwtToken } from "../utils/generateJwtToken.util.js";
+import { generatePasswordResetToken } from "../helpers/generate_password_reset_token.js";
+import { validateToken } from "../helpers/checkPasswordLinkValidity.js";
 
 export const signUpController = async (req: Request, res: Response) => {
   try {
@@ -232,12 +232,10 @@ export const updateEmailController = async (req: Request, res: Response) => {
     }
 
     if (newEmail === foundUser.email) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "New email cannot be the same as the current email",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "New email cannot be the same as the current email",
+      });
     }
 
     const existingUser = await User.findOne({ email: newEmail });

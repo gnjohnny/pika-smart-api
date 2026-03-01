@@ -8,9 +8,9 @@ import {
   signUpController,
   updateEmailController,
   updatePasswordController,
-} from "../controllers/auth.controllers";
-import { checkAuthMiddleware } from "../middleware/checkAuth.middleware";
-import { User } from "../models/user.model";
+} from "../controllers/auth.controllers.js";
+import { checkAuthMiddleware } from "../middleware/checkAuth.middleware.js";
+import { User } from "../models/user.model.js";
 
 const router = Router();
 

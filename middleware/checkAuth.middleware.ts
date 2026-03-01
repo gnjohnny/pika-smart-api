@@ -1,26 +1,24 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-import { User } from "../models/user.model";
+import { User } from "../models/user.model.js";
 
 export const checkAuthMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const token = req.cookies.pikasmart_jwt_tk;
     if (!token) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: "Authentication token missing - Unauthorised",
-        });
+      return res.status(401).json({
+        success: false,
+        message: "Authentication token missing - Unauthorised",
+      });
     }
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET_KEY as string
+      process.env.JWT_SECRET_KEY as string,
     ) as jwt.JwtPayload;
 
     if (!decoded || !decoded.email) {

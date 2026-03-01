@@ -2,11 +2,11 @@
   "compilerOptions": {
     /* === Basic Options === */
     "target": "ES2022",
-    "module": "ESNext",
+    "module": "nodenext",
     "lib": ["ES2022"],
     "outDir": "dist",
     "strict": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

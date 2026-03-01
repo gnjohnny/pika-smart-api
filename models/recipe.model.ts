@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
-import { ingredientSchema } from "./ingredients.model";
+import { ingredientSchema } from "./ingredients.model.js";
 
 const recipeSchema = new Schema(
   {

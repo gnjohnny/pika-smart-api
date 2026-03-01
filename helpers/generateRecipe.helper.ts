@@ -1,4 +1,4 @@
-import model from "../config/gemini.config";
+import model from "../config/gemini.config.js";
 
 export const generateRecipeFromIngredients = async (prompt: string) => {
   try {

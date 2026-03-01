@@ -2,34 +2,46 @@ import express, { Application } from "express";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import path from "path";
 
-import { connectDB } from "./db/db";
-import authRoutes from "./routes/auth.routes";
-import recipeRoutes from "./routes/recipe.routes";
+import { connectDB } from "./db/db.js";
+import authRoutes from "./routes/auth.routes.js";
+import recipeRoutes from "./routes/recipe.routes.js";
 
 const app: Application = express();
 const PORT = process.env.PORT;
+const __dirname = path.resolve();
 
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 app.use(cookieParser());
-app.use(cors({
+app.use(
+  cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
-}))
+  }),
+);
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/recipe", recipeRoutes);
 
-app.get("/", (req: express.Request, res: express.Response) => {
+app.get("/test", (req: express.Request, res: express.Response) => {
   try {
     return res.status(200).json({
       message: "Server is set and running successfully",
     });
   } catch (error: any) {
-    console.log("error in / route: ", error.message);
+    console.log("error in /test route: ", error.message);
   }
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+
+  app.get(/.*/, (req: express.Request, res: express.Response) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`server running on port: ${PORT}`);

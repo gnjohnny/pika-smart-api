@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkAuthMiddleware } from "../middleware/checkAuth.middleware";
+import { checkAuthMiddleware } from "../middleware/checkAuth.middleware.js";
 import {
   deleteAllTrashedRecipeController,
   favouriteRecipeController,
@@ -13,7 +13,7 @@ import {
   getFullRecipeInfo,
   restoreRecipeFromTrash,
   unFavouriteRecipe,
-} from "../controllers/recipe.controllers";
+} from "../controllers/recipe.controllers.js";
 
 const router = Router();
 

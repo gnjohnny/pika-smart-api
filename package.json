@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "This is an api for a pika smart app that helps user generate recipes with the ingredients they have or a budget amount",
   "main": "server.ts",
+  "type": "module",
   "scripts": {
-    "dev": "tsx --watch server.ts"
+    "dev": "cross-env NODE_ENV=development tsx --watch server.ts",
+    "build": "tsc",
+    "start": "cross-env NODE_ENV=production node dist/server.js"
   },
   "keywords": [],
   "author": "Johnny",
@@ -27,6 +30,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.8",
+    "cross-env": "10.1.0",
     "nodemon": "^3.1.11",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

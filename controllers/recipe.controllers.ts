@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { SortOrder } from "mongoose";
-import { User } from "../models/user.model";
-import { buildRecipePromptWithIngredientsProvided } from "../helpers/promptBuilder.helper";
-import { generateRecipeFromIngredients } from "../helpers/generateRecipe.helper";
-import { RecipeModel } from "../models/recipe.model";
+import { User } from "../models/user.model.js";
+import { buildRecipePromptWithIngredientsProvided } from "../helpers/promptBuilder.helper.js";
+import { generateRecipeFromIngredients } from "../helpers/generateRecipe.helper.js";
+import { RecipeModel } from "../models/recipe.model.js";
 
 const escapeRegex = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
